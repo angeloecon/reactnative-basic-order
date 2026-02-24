@@ -1,26 +1,37 @@
+import OrderCard from "@/components/OrderCard";
 import { products } from "@/data/product";
-import React from "react";
-import { FlatList, Image, StyleSheet, Text, View } from "react-native";
+import React, { useState } from "react";
+import {
+  Button,
+  FlatList,
+  Image,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-type CardProps = {
+type ProductShape = {
+  id: number;
   title: string;
-  price: number;
   description: string;
+  price: number;
   image: string;
 };
 
-const CardComp = ({ title, price, description, image }: CardProps) => (
-  <View style={styles.cardContainer}>
-    <Image source={{ uri: image }} style={styles.cardImg} resizeMode="cover" />
-    <View style={styles.infoContainer}>
-      <Text style={styles.cardText}>{title}</Text>
-      <Text style={styles.cardPrice}>${price}</Text>
-    </View>
-  </View>
-);
-
 const orders = () => {
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [isSelectedProduct, setSelectedProduct] = useState<ProductShape | null>(
+    null,
+  );
+
+  const handleCardPress = (product: ProductShape) => {
+    setSelectedProduct(product);
+    setModalVisible(true);
+  };
+
   return (
     <SafeAreaView style={styles.orderContainer}>
       <View style={styles.orderHeader}>
@@ -29,10 +40,46 @@ const orders = () => {
       <View style={styles.orderListContainer}>
         <FlatList
           data={products}
-          renderItem={({ item }) => <CardComp {...item} />}
+          renderItem={({ item }) => (
+            <OrderCard {...item} onPress={() => handleCardPress(item)} />
+          )}
           keyExtractor={(item) => item.id.toLocaleString()}
         />
       </View>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isModalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Image
+              source={{ uri: isSelectedProduct?.image }}
+              style={styles.modalImage}
+              resizeMode="cover"
+            />
+            <Text style={styles.modalTitle}>{isSelectedProduct?.title}</Text>
+
+            <ScrollView style={styles.descriptionContainer}>
+              <Text style={styles.modalDescription}>
+                {isSelectedProduct?.description}
+              </Text>
+
+              <Text style={styles.modalPrice}>
+                ${isSelectedProduct?.price.toFixed(2)}
+              </Text>
+            </ScrollView>
+
+            <Button
+              title="Close"
+              onPress={() => setModalVisible(false)}
+              color="#d9534f"
+            />
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -57,34 +104,48 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  cardContainer: {
-    backgroundColor: "#ffffff",
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    width: "90%",
+    maxHeight: "70%",
+    backgroundColor: "white",
     borderRadius: 12,
-    marginBottom: 15,
-    marginHorizontal: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 1, height: 3 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
-    overflow: "hidden",
+    padding: 20,
   },
-  infoContainer: {
-    padding: 10,
-    marginBottom: 5,
-  },
-  cardText: {
-    fontSize: 16,
+  modalTitle: {
+    fontSize: 20,
     fontWeight: "bold",
-    color: "#333",
-    marginBottom: 8,
+    marginBottom: 5,
+    textAlign: "center",
   },
-  cardPrice: { fontSize: 14, color: "#28a745" },
-  cardDesc: {},
-  cardImg: {
+  modalPrice: {
+    fontSize: 18,
+    color: "#28a745",
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 15,
+  },
+  descriptionContainer: {
+    marginBottom: 20,
+  },
+  modalDescription: {
+    fontSize: 16,
+    color: "#555",
+    lineHeight: 22,
+  },
+  //limited image height not dynamic
+  //good for landsacpe but not portrait
+  //need adjustment
+  modalImage: {
     width: "100%",
-    height: 180,
-    backgroundColor: "#f5f5f5",
+    height: 200,
+    marginBottom: 15,
+    borderRadius: 10,
   },
 });
 

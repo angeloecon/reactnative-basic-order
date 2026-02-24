@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -13,7 +14,10 @@ const SearchBar = () => {
   const [value, setValue] = useState("");
   return (
     <View style={styles.searchBarContainer}>
-      <KeyboardAvoidingView>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
         <TextInput
           placeholder="Search.."
           style={styles.searchInput}

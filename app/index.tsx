@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   headerContainer: {
-    //for testing keyavoidingview marginTop: 100,
+    //for testing keyavoidingview marginTop: 100
     flexDirection: "column",
     justifyContent: "space-between",
   },
